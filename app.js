@@ -2,7 +2,6 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import logger from "morgan";
-
 const app = express();
 
 // body parser
@@ -30,7 +29,10 @@ app.use(logger("tiny"));
 
 import userRouter from "./src/routes/user.router.js";
 import router from "./src/routes/user.router.js";
+import { generatedErrors } from "./src/utils/errors.js";
 
 app.use('/user', userRouter);
+
+app.use(generatedErrors)
 
 export { app };

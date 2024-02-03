@@ -12,7 +12,7 @@ const createAceessAndRefreshToken = async (userId) => {
     const accessToken = await user.createAccessToken();
     const refreshToken = await user.createRefreshToken();
 
-    console.log(accessToken);
+    // console.log(accessToken);
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
@@ -107,4 +107,25 @@ export const login = AsyncHandler(async (req, res, next) => {
         "User Login Succesfully"
       )
     );
+});
+
+// Logout Controller
+
+export const logout = AsyncHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, {
+    $set: {
+      refreshToken: undefined,
+    },
+  });
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User Logout Sucessfull"));
 });
