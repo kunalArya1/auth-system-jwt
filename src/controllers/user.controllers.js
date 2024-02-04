@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
+import { sendMail } from "../middleware/sendEmail.middleware.js";
 
 // Generate access and refresh token
 
@@ -129,3 +130,24 @@ export const logout = AsyncHandler(async (req, res, next) => {
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User Logout Sucessfull"));
 });
+
+export const forgotPassword = AsyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email }).select(
+    "-password"
+  );
+
+  if (!user) {
+    throw new ApiError(404, "User with this email is not registred");
+  }
+
+  const url = `${req.protocol}://${req.get("host")}/user/forgot-passowrd-link/${
+    user._id
+  }`;
+
+  sendMail(req, res, next, url);
+
+  res.json({ user, url });
+});
+
+
+export 
