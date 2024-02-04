@@ -145,6 +145,8 @@ export const forgotPassword = AsyncHandler(async (req, res, next) => {
   }`;
 
   sendMail(req, res, next, url);
+  user.resetPasswordToken = "1";
+  await  user.save({ validateBeforeSave: false });
 
   res.json({ user, url });
 });

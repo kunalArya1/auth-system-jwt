@@ -473,7 +473,7 @@ export const sendMail = async (req, res, next, url) => {
                   <tr>
                     <td class="content-cell">
                       <div class="f-fallback">
-                        <h1>Hi Neha,</h1>
+                        <h1>Hi Nirbhay,</h1>
                         <p>You recently requested to reset your password for your Kunal Private Limited account. Use the button below to reset it. <strong>This password reset is only valid for the next 24 hours.</strong></p>
                         <!-- Action -->
                         <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
