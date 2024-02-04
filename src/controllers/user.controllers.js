@@ -149,5 +149,25 @@ export const forgotPassword = AsyncHandler(async (req, res, next) => {
   res.json({ user, url });
 });
 
+export const forgotPasswordLink = AsyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.userid).select("-password");
 
-export 
+  if (!user) {
+    throw new ApiError(
+      400,
+      "User is not rgistred with this emial ! Please Register .."
+    );
+  }
+  user.password = req.body.password;
+  await user.save();
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user,
+        "Password Reset Succefully..! Please Login Again."
+      )
+    );
+});
