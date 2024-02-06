@@ -31,8 +31,6 @@ import userRouter from "./src/routes/user.router.js";
 import router from "./src/routes/user.router.js";
 import { generatedErrors } from "./src/utils/errors.js";
 
-app.use('/user', userRouter);
-
-app.use(generatedErrors)
+app.use("/user", userRouter);
 
 export { app };
