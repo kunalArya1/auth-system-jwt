@@ -179,6 +179,22 @@ export const forgotPasswordLinkGetUser = AsyncHandler(
   }
 );
 
+// Reset Password Controller
+
+export const resetPassword = AsyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(400, "Please Login First");
+  }
+  user.password = req.body.password;
+  await user.save();
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, { user }, "Password Reset Successfully"));
+});
+
 // Refresh Access Token for Long Time LogIn
 export const refreshAccessToken = AsyncHandler(async (req, res, next) => {
   const userRefreshToken = req.cookies.refreshToken;
