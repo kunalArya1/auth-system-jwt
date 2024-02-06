@@ -132,7 +132,8 @@ export const logout = AsyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, {}, "User Logout Sucessfull"));
 });
 
-export const forgotPassword = AsyncHandler(async (req, res, next) => {
+// Forgot Password Send Link Controller
+export const forgotPasswordLinkSend = AsyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email }).select(
     "-password"
   );
@@ -152,29 +153,33 @@ export const forgotPassword = AsyncHandler(async (req, res, next) => {
   res.json({ user, url });
 });
 
-export const forgotPasswordLink = AsyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.userid).select("-password");
+// Forgot Password User Recive Link Controllers
+export const forgotPasswordLinkGetUser = AsyncHandler(
+  async (req, res, next) => {
+    const user = await User.findById(req.params.userid).select("-password");
 
-  if (!user) {
-    throw new ApiError(
-      400,
-      "User is not rgistred with this emial ! Please Register .."
-    );
+    if (!user) {
+      throw new ApiError(
+        400,
+        "User is not rgistred with this emial ! Please Register .."
+      );
+    }
+    user.password = req.body.password;
+    await user.save();
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          user,
+          "Password Reset Succefully..! Please Login Again."
+        )
+      );
   }
-  user.password = req.body.password;
-  await user.save();
+);
 
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        user,
-        "Password Reset Succefully..! Please Login Again."
-      )
-    );
-});
-
+// Refresh Access Token for Long Time LogIn
 export const refreshAccessToken = AsyncHandler(async (req, res, next) => {
   const userRefreshToken = req.cookies.refreshToken;
 
