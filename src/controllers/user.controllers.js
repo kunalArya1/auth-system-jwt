@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { sendMail } from "../middleware/sendEmail.middleware.js";
+import jwt from "jsonwebtoken";
 
 // Generate access and refresh token
 
@@ -146,7 +147,7 @@ export const forgotPassword = AsyncHandler(async (req, res, next) => {
 
   sendMail(req, res, next, url);
   user.resetPasswordToken = "1";
-  await  user.save({ validateBeforeSave: false });
+  await user.save({ validateBeforeSave: false });
 
   res.json({ user, url });
 });
@@ -170,6 +171,52 @@ export const forgotPasswordLink = AsyncHandler(async (req, res, next) => {
         200,
         user,
         "Password Reset Succefully..! Please Login Again."
+      )
+    );
+});
+
+export const refreshAccessToken = AsyncHandler(async (req, res, next) => {
+  const userRefreshToken = req.cookies.refreshToken;
+
+  if (!userRefreshToken) {
+    throw new ApiError(500, "Token Not Found | Invalid Token");
+  }
+
+  const decodedUser = await jwt.verify(
+    userRefreshToken,
+    process.env.REFRESH_TOEKN_SECRET
+  );
+
+  const user = await User.findById(decodedUser._id);
+  if (!user) {
+    throw new ApiError(
+      400,
+      "UnAuthorized Refresh token | Refresh Token Expried"
+    );
+  }
+
+  if (userRefreshToken !== user.refreshToken) {
+    throw new ApiError(404, "Invalid Token | User Not registred ");
+  }
+
+  const { accessToken, refreshToken } = await createAceessAndRefreshToken(
+    user._id
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken },
+        "Access token refreshed successfully"
       )
     );
 });
